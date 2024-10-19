@@ -1,0 +1,19 @@
+def format_old_style(name, age):
+
+    return "Hello, my name is %s and I am %d years old." % (name, age)
+
+def format_new_style(name, age):
+  
+    return "Hello, my name is {} and I am {} years old.".format(name, age)
+
+
+name = "Alice"
+age = 30
+
+
+formatted_old = format_old_style(name, age)
+print(f"Old-style formatting: {formatted_old}")
+
+
+formatted_new = format_new_style(name, age)
+print(f"New-style formatting: {formatted_new}")

@@ -1,0 +1,13 @@
+
+def list_values_and_types(values_list):
+    result = ""
+    
+    for value in values_list:
+        result += f"Value: {value}, Type: {type(value).__name__}\n"
+    
+    return result
+
+# przyklad uzycia
+values = [10, 3.14, 'hello', True, [1, 2], {'key': 'value'}, None]
+formatted_output = list_values_and_types(values)
+print(formatted_output)

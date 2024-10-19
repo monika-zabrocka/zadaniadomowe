@@ -1,0 +1,21 @@
+
+counter = 10
+
+def modify_counter():
+    global counter  
+    print(f"Before modification in function, global counter: {counter}")
+    
+    counter += 5  
+    print(f"After modification in function, global counter: {counter}")
+
+def local_example():
+    counter = 50  
+    print(f"Inside local_example function, local counter: {counter}")
+
+
+print(f"Initial global counter: {counter}")
+modify_counter()  
+print(f"Global counter after modify_counter function: {counter}")
+
+local_example()  
+print(f"Global counter after local_example function: {counter}")

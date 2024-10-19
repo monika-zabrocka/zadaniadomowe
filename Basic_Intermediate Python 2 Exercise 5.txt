@@ -1,0 +1,13 @@
+def evaluate_boolean_expression(A, B, C):
+   
+    return A and (B or not C)
+
+
+print(f"A=True, B=True, C=True -> Result: {evaluate_boolean_expression(True, True, True)}")
+print(f"A=True, B=True, C=False -> Result: {evaluate_boolean_expression(True, True, False)}")
+print(f"A=True, B=False, C=True -> Result: {evaluate_boolean_expression(True, False, True)}")
+print(f"A=True, B=False, C=False -> Result: {evaluate_boolean_expression(True, False, False)}")
+print(f"A=False, B=True, C=True -> Result: {evaluate_boolean_expression(False, True, True)}")
+print(f"A=False, B=True, C=False -> Result: {evaluate_boolean_expression(False, True, False)}")
+print(f"A=False, B=False, C=True -> Result: {evaluate_boolean_expression(False, False, True)}")
+print(f"A=False, B=False, C=False -> Result: {evaluate_boolean_expression(False, False, False)}")

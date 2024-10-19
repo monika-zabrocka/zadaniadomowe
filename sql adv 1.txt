@@ -1,0 +1,72 @@
+
+
+WITH student_enrollments AS (
+    SELECT e.student_id, COUNT(e.course_id) AS enrollment_count
+    FROM enrollments e
+    GROUP BY e.student_id
+)
+SELECT s.first_name, s.last_name, se.enrollment_count
+FROM student_enrollments se
+JOIN students s ON s.student_id = se.student_id
+ORDER BY se.enrollment_count DESC
+LIMIT 1;
+
+WITH total_enrollments AS (
+    SELECT COUNT(*) AS total_count
+    FROM enrollments
+), course_enrollments AS (
+    SELECT e.course_id, COUNT(e.student_id) AS course_count
+    FROM enrollments e
+    GROUP BY e.course_id
+)
+SELECT c.course_name, ce.course_count, 
+       (ce.course_count / te.total_count) * 100 AS percentage_of_total
+FROM course_enrollments ce
+JOIN courses c ON ce.course_id = c.course_id
+CROSS JOIN total_enrollments te;
+
+
+WITH course_enrollments AS (
+    SELECT e.course_id, COUNT(e.student_id) AS enrollment_count
+    FROM enrollments e
+    GROUP BY e.course_id
+)
+SELECT c.course_name, ce.enrollment_count
+FROM course_enrollments ce
+JOIN courses c ON c.course_id = ce.course_id
+ORDER BY ce.enrollment_count DESC
+LIMIT 1;
+
+
+WITH student_scores AS (
+    SELECT s.student_id, e.course_id, SUM(sc.score) AS total_score
+    FROM scores sc
+    JOIN enrollments e ON sc.enrollment_id = e.enrollment_id
+    JOIN students s ON s.student_id = e.student_id
+    GROUP BY s.student_id, e.course_id
+)
+SELECT st.first_name, st.last_name, c.course_name, ss.total_score
+FROM student_scores ss
+JOIN students st ON st.student_id = ss.student_id
+JOIN courses c ON c.course_id = ss.course_id
+ORDER BY ss.total_score DESC;
+
+
+START TRANSACTION;
+
+-- Insert a new student
+INSERT INTO students (first_name, last_name, birth_date) 
+VALUES ('Alice', 'Johnson', '2000-04-12');
+
+-- Get the ID of the newly inserted student
+SET @new_student_id = LAST_INSERT_ID();
+
+-- Enroll the student in a course
+INSERT INTO enrollments (student_id, course_id, enrollment_date)
+VALUES (@new_student_id, 1, '2024-10-19'); 
+
+-- Commit the transaction if both operations succeed
+COMMIT;
+
+-- If any error occurs, roll back the transaction
+ROLLBACK;

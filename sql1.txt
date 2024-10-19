@@ -1,0 +1,94 @@
+Create database CompanyDB;
+
+Use CompanyDB;
+
+ 
+
+Create table employees (
+
+EmployeeID INT primary key auto_increment,
+
+FirstName VARCHAR(50) not null,
+
+LastName VARCHAR(50) not null,
+
+BirthDate DATE not null,
+
+HireDate DATE not null,
+
+Salary DECIMAL(10, 2) default 3000.00 
+
+CHECK (Salary > 0),
+CONSTRAINT unique_employee_name UNIQUE (FirstName, LastName));
+
+
+
+Create Table departments(
+
+DepartmentID INT primary key auto_increment,
+
+DepartmentName VARCHAR(100) not null unique);
+
+ALTER TABLE employees
+
+ADD DepartmentID int references departments(DepartmentID);
+
+-- task 2
+
+INSERT INTO employees (EmployeeID, FirstName, LastName, BirthDate, HireDate, Salary, DepartmentID) VALUES
+
+(1,'John', 'Doe', '1990-01-15', '2020-01-01', 4000, 1),
+
+(2,'Jane', 'Smith', '1989-06-23', '2020-01-01', 5000, 2),
+
+(3,'Alice', 'Johnson', '2001-03-30', '2024-01-01', 3000, 3),
+
+(4,'Bob', 'Brown', '1998-11-11','2024-01-01',3000, 4),
+
+(5,'Charlie', 'Davis', '1992-05-14', '2023-08-23', 2000, 2),
+
+(6,'Emily', 'Clark', '2000-12-01','2023-05-20', 4000, 1 ),
+
+(7,'Frank', 'Moore', '1997-07-22', '2022-01-09', 5000, 1);
+
+
+
+INSERT INTO Departments (DepartmentID, DepartmentName) VALUES
+
+(1, 'Sales'),
+
+(2, 'Marketing'),
+
+(3,'Human Resources'),
+
+(4,'Finance')
+; 
+
+
+SELECT * From employees;
+
+SELECT FirstName, LastName, Salary FROM employees
+
+WHERE Salary > 4000;
+
+
+
+SELECT FirstName, LastName, DepartmentName FROM employees As e
+
+JOIN departments d ON e.DepartmentID = d.DepartmentID
+
+WHERE e.DepartmentID = 1;
+
+
+
+UPDATE employees
+
+SET Salary = Salary * 1.1
+
+WHERE HireDate < '2021-01-01';
+
+
+
+Delete FROM employees
+
+WHERE Salary < 3000;
