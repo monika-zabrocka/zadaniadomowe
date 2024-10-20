@@ -10,3 +10,22 @@ print(check_integers(5, 10, 3))  #"All positive"
 print(check_integers(-1, 5, 10))  #  "Contains negative"
 print(check_integers(-5, 10, -2))  #  "Contains negative"
 print(check_integers(5, -1, 3))   #  "Contains negative"
+
+def short_circuit_demo():
+    print("Testing 'and' operator short-circuit behavior:")
+    
+ 
+    if False and print("This will not be printed."):
+        print("This won't happen.")
+    else:
+        print("First condition is False, so no further evaluation in 'and'.")
+    
+    print("\nTesting 'or' operator short-circuit behavior:")
+    
+  
+    if True or print("This will not be printed."):
+        print("First condition is True, so 'or' short-circuits.")
+    else:
+        print("This won't happen either.")
+
+short_circuit_demo()

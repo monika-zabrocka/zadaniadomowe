@@ -1,0 +1,73 @@
+
+CREATE TABLE archived_orders (
+    order_id INT PRIMARY KEY,
+    customer_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10, 2),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+
+CREATE EVENT archive_old_orders
+ON SCHEDULE EVERY 1 MONTH
+DO
+BEGIN
+   
+    INSERT INTO archived_orders (order_id, customer_id, order_date, total_amount)
+    SELECT order_id, customer_id, order_date, total_amount
+    FROM orders
+    WHERE order_date < DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
+
+    
+    DELETE FROM orders WHERE order_date < DATE_SUB(CURDATE(), INTERVAL 1 YEAR);
+END;
+
+
+CREATE EVENT update_stock_quantity
+ON SCHEDULE EVERY 1 HOUR 
+DO
+BEGIN
+    
+    UPDATE products p
+    JOIN order_items oi ON p.product_id = oi.product_id
+    JOIN orders o ON oi.order_id = o.order_id
+    SET p.stock_quantity = p.stock_quantity - oi.quantity
+    WHERE o.order_date = CURDATE() 
+    AND p.stock_quantity >= oi.quantity;  
+
+END;
+
+INSERT INTO stock_issues (product_id, issue_date, issue_message)
+SELECT p.product_id, CURDATE(), 'Insufficient stock'
+FROM products p
+JOIN order_items oi ON p.product_id = oi.product_id
+WHERE p.stock_quantity < oi.quantity;
+
+CREATE PROCEDURE check_stock_levels()
+BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE product_name VARCHAR(100);
+    DECLARE cur CURSOR FOR
+        SELECT product_name
+        FROM products
+        WHERE stock_quantity < 10;
+    
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+    
+    OPEN cur;
+    stock_check: LOOP
+        FETCH cur INTO product_name;
+        IF done THEN
+            LEAVE stock_check;
+        END IF;
+       
+        SELECT CONCAT('Product ', product_name, ' has low stock!');
+    END LOOP stock_check;
+    CLOSE cur;
+END;
+
+CREATE EVENT daily_stock_check
+ON SCHEDULE EVERY 1 DAY
+DO
+BEGIN
+    CALL check_stock_levels();
+END;

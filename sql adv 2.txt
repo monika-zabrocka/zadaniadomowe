@@ -1,0 +1,78 @@
+START TRANSACTION;
+
+
+INSERT INTO projects (project_name, start_date)
+VALUES ('Project Alpha', '2024-11-01');
+
+ROLLBACK;
+
+COMMIT;
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE GetStudentCourses(IN studentID INT)
+BEGIN
+    SELECT c.course_name, e.enrollment_date
+    FROM enrollments e
+    JOIN courses c ON e.course_id = c.course_id
+    WHERE e.student_id = studentID;
+END $$
+
+DELIMITER ;
+
+
+
+CALL GetStudentCourses(1);
+
+
+
+DELIMITER $$
+
+CREATE PROCEDURE UpdateEnrollmentDate(IN studentID INT, IN courseID INT, IN newDate DATE)
+BEGIN
+    UPDATE enrollments
+    SET enrollment_date = newDate
+    WHERE student_id = studentID AND course_id = courseID;
+END $$
+
+DELIMITER ;
+
+
+
+CALL UpdateEnrollmentDate(1, 2, '2024-10-15');
+
+4. Create a Stored Procedure That Removes a Student from All Courses They Are Enrolled In
+
+DELIMITER $$
+
+CREATE PROCEDURE RemoveStudentFromCourses(IN studentID INT)
+BEGIN
+    DELETE FROM enrollments
+    WHERE student_id = studentID;
+END $$
+
+DELIMITER ;
+
+
+
+CALL RemoveStudentFromCourses(1);
+
+
+START TRANSACTION;
+
+
+INSERT INTO courses (course_name, start_date, description)
+VALUES ('New Course', '2024-12-01', 'A newly added course description');
+
+
+UPDATE courses
+SET description = 'Updated course description'
+WHERE course_id = 1;
+
+
+COMMIT;
+
+
+ROLLBACK;

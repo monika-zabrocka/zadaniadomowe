@@ -1,0 +1,84 @@
+CREATE TABLE IF NOT EXISTS employees (
+    employee_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    department_id INT NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL CHECK (salary >= 0)
+);
+
+CREATE TABLE IF NOT EXISTS projects (
+    project_id INT AUTO_INCREMENT PRIMARY KEY,
+    project_name VARCHAR(100) NOT NULL,
+    start_date DATE NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT,
+    project_id INT,
+    start_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (project_id) REFERENCES projects(project_id)
+);
+
+
+
+INSERT INTO employees (first_name, last_name, department_id, salary) VALUES
+('Mark', 'Johnson', 1, 5000.00),
+('Sara', 'Williams', 2, 6000.00);
+
+
+INSERT INTO projects (project_name, start_date) VALUES
+('Project Delta', '2023-08-01'),
+('Project Epsilon', '2023-09-10');
+
+
+INSERT INTO assignments (employee_id, project_id, start_date) VALUES
+(1, 3, '2023-08-05'),
+(2, 4, '2023-09-15');
+
+
+SELECT e.first_name, e.last_name, p.project_name, a.start_date
+FROM employees e
+JOIN assignments a ON e.employee_id = a.employee_id
+JOIN projects p ON a.project_id = p.project_id;
+
+
+
+SELECT e.first_name, e.last_name
+FROM employees e
+LEFT JOIN assignments a ON e.employee_id = a.employee_id
+WHERE a.employee_id IS NULL;
+
+
+
+SELECT p.project_name, e.first_name, e.last_name
+FROM projects p
+LEFT JOIN assignments a ON p.project_id = a.project_id
+LEFT JOIN employees e ON a.employee_id = e.employee_id
+ORDER BY p.project_name;
+
+
+SELECT p.project_name,
+       COUNT(a.employee_id) AS num_assigned,
+       (COUNT(a.employee_id) / (SELECT COUNT(*) FROM employees) * 100) AS percentage_assigned
+FROM projects p
+LEFT JOIN assignments a ON p.project_id = a.project_id
+GROUP BY p.project_name;
+
+
+ALTER TABLE projects ADD COLUMN project_type VARCHAR(50);
+
+
+
+UPDATE projects SET project_type = 'Internal' WHERE project_name = 'Project Alpha';
+UPDATE projects SET project_type = 'External' WHERE project_name = 'Project Beta';
+UPDATE projects SET project_type = 'Internal' WHERE project_name = 'Project Gamma';
+
+SELECT p.project_type, 
+       COUNT(DISTINCT a.employee_id) AS num_employees, 
+       COUNT(a.assignment_id) AS num_assignments
+FROM projects p
+LEFT JOIN assignments a ON p.project_id = a.project_id
+GROUP BY p.project_type;
+

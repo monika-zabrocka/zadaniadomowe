@@ -1,0 +1,76 @@
+
+CREATE TABLE employees (
+    employee_id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    department_id INT NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL CHECK (salary >= 0)
+);
+
+
+
+CREATE TABLE projects (
+    project_id INT AUTO_INCREMENT PRIMARY KEY,
+    project_name VARCHAR(100) NOT NULL,
+    start_date DATE NOT NULL
+);
+
+
+CREATE TABLE assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    employee_id INT,
+    project_id INT,
+    start_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id),
+    FOREIGN KEY (project_id) REFERENCES projects(project_id)
+);
+
+
+INSERT INTO employees (first_name, last_name, department_id, salary) VALUES
+('John', 'Doe', 1, 5500.00),
+('Jane', 'Smith', 2, 6500.00),
+('Emily', 'Jones', 3, 4000.00),
+('Michael', 'Brown', 4, 7200.00);
+
+
+INSERT INTO projects (project_name, start_date) VALUES
+('Project Alpha', '2023-01-10'),
+('Project Beta', '2023-03-01'),
+('Project Gamma', '2023-06-15');
+
+
+INSERT INTO assignments (employee_id, project_id, start_date) VALUES
+(1, 1, '2023-01-15'),
+(2, 1, '2023-02-01'),
+(1, 2, '2023-03-05'),
+(3, 2, '2023-03-10'),
+(4, 3, '2023-07-01');
+
+
+
+SELECT e.first_name, e.last_name, p.project_name
+FROM employees e
+JOIN assignments a ON e.employee_id = a.employee_id
+JOIN projects p ON a.project_id = p.project_id;
+
+
+
+SELECT p.project_name, COUNT(a.employee_id) AS num_employees
+FROM projects p
+JOIN assignments a ON p.project_id = a.project_id
+GROUP BY p.project_name;
+
+
+SELECT p.project_name, AVG(e.salary) AS avg_salary
+FROM projects p
+JOIN assignments a ON p.project_id = a.project_id
+JOIN employees e ON a.employee_id = e.employee_id
+GROUP BY p.project_name;
+
+
+
+SELECT p.project_name, e.first_name, e.last_name, a.start_date
+FROM projects p
+JOIN assignments a ON p.project_id = a.project_id
+JOIN employees e ON a.employee_id = e.employee_id
+ORDER BY a.start_date;

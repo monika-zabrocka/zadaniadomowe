@@ -1,0 +1,70 @@
+CREATE TABLE Sales (
+    sale_id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    sale_date DATE NOT NULL,
+    sale_value DECIMAL(10, 2) NOT NULL CHECK (sale_value >= 0),
+    quantity_sold INT NOT NULL CHECK (quantity_sold >= 0),
+    FOREIGN KEY (product_id) REFERENCES Products(product_id) 
+);
+
+
+INSERT INTO Sales (product_id, sale_date, sale_value, quantity_sold) VALUES
+(1, '2024-10-01', 500.00, 10),
+(1, '2024-10-02', 450.00, 8),
+(2, '2024-10-01', 300.00, 15),
+(2, '2024-10-05', 250.00, 12),
+(3, '2024-10-02', 600.00, 20),
+(3, '2024-10-07', 700.00, 22);
+
+
+SELECT p.product_name, SUM(s.sale_value) AS total_sales
+FROM Sales s
+JOIN Products p ON s.product_id = p.product_id
+GROUP BY p.product_name
+ORDER BY total_sales DESC;
+
+
+
+SELECT sale_id, product_id, sale_date, sale_value,
+       sale_value - LAG(sale_value, 1) OVER (PARTITION BY product_id ORDER BY sale_date) AS sales_difference
+FROM Sales
+ORDER BY product_id, sale_date;
+
+
+
+SELECT p.product_name, 
+       EXTRACT(YEAR_MONTH FROM s.sale_date) AS sale_month,
+       AVG(s.sale_value) AS avg_monthly_sales
+FROM Sales s
+JOIN Products p ON s.product_id = p.product_id
+GROUP BY p.product_name, sale_month
+ORDER BY sale_month;
+
+
+WITH product_sales AS (
+    SELECT product_id, sale_date, SUM(sale_value) AS daily_sales
+    FROM Sales
+    GROUP BY product_id, sale_date
+)
+SELECT ps.product_id, ps.sale_date, ps.daily_sales
+FROM product_sales ps
+JOIN (
+    SELECT product_id, MAX(daily_sales) AS max_sales
+    FROM product_sales
+    GROUP BY product_id
+) max_sales_per_product
+ON ps.product_id = max_sales_per_product.product_id
+AND ps.daily_sales = max_sales_per_product.max_sales;
+
+SELECT product_id, sale_date, sale_value,
+       SUM(sale_value) OVER (PARTITION BY product_id ORDER BY sale_date) AS cumulative_sales
+FROM Sales
+ORDER BY product_id, sale_date;
+
+WITH sales_diff AS (
+    SELECT product_id, sale_value - LAG(sale_value, 1) OVER (PARTITION BY product_id ORDER BY sale_date) AS sales_difference
+    FROM Sales
+)
+SELECT product_id, MAX(sales_difference) AS max_difference, MIN(sales_difference) AS min_difference
+FROM sales_diff
+GROUP BY product_id;

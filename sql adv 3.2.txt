@@ -1,0 +1,48 @@
+
+START TRANSACTION;
+
+INSERT INTO customers (first_name, last_name, email, phone_number) 
+VALUES ('Alice', 'Brown', 'alice.brown@example.com', '555-555-5555');
+
+
+SAVEPOINT before_order;
+
+
+INSERT INTO orders (customer_id, order_date, total_amount) 
+VALUES (LAST_INSERT_ID(), '2024-10-20', 999.99);
+
+
+INSERT INTO order_items (order_id, product_id, quantity, price) 
+VALUES (LAST_INSERT_ID(), 999, 1, 999.99);
+
+
+ROLLBACK TO before_order;
+
+
+COMMIT;
+
+
+ROLLBACK;
+
+
+START TRANSACTION;
+
+INSERT INTO customers (first_name, last_name, email, phone_number) 
+VALUES ('Alice', 'Brown', 'alice.brown@example.com', '555-555-5555');
+
+SAVEPOINT before_order;
+
+INSERT INTO orders (customer_id, order_date, total_amount) 
+VALUES (LAST_INSERT_ID(), '2024-10-20', 999.99);
+
+BEGIN
+    INSERT INTO order_items (order_id, product_id, quantity, price) 
+    VALUES (LAST_INSERT_ID(), 999, 1, 999.99);
+EXCEPTION
+   
+    WHEN foreign_key_violation THEN
+    ROLLBACK TO before_order;
+END;
+
+COMMIT;
+

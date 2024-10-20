@@ -1,0 +1,23 @@
+CREATE VIEW StudentDetails AS
+SELECT student_id, first_name, last_name, birth_date
+FROM students;
+
+SELECT * FROM StudentDetails;
+
+CREATE VIEW CourseEnrollments AS
+SELECT c.course_name, COUNT(e.student_id) AS num_students
+FROM courses c
+LEFT JOIN enrollments e ON c.course_id = e.course_id
+GROUP BY c.course_id, c.course_name;
+
+
+SELECT * FROM CourseEnrollments;
+
+CREATE OR REPLACE VIEW StudentDetails AS
+SELECT student_id, first_name, last_name, birth_date
+FROM students
+WHERE birth_date > '2000-01-01';
+
+SELECT * FROM StudentDetails;
+
+DROP VIEW IF EXISTS CourseEnrollments;

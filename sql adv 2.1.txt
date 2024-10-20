@@ -1,0 +1,119 @@
+CREATE DATABASE SklepInternetowy;
+USE SklepInternetowy;
+
+CREATE TABLE Klienci (
+    KlientID INT PRIMARY KEY AUTO_INCREMENT,
+    Imie NVARCHAR(50) NOT NULL,
+    Nazwisko NVARCHAR(50) NOT NULL,
+    Email NVARCHAR(100) NOT NULL UNIQUE,
+    DataUrodzenia DATE,
+    DataRejestracji DATETIME DEFAULT GETDATE()
+);
+
+
+CREATE TABLE Produkty (
+    ProduktID INT PRIMARY KEY AUTO_INCREMENT,
+    Nazwa NVARCHAR(100) NOT NULL,
+    Cena DECIMAL(10, 2) NOT NULL,
+    IloscNaStanie INT CHECK (IloscNaStanie >= 0)
+);
+
+
+CREATE TABLE Zamowienia (
+    ZamowienieID INT PRIMARY KEY AUTO_INCREMENT,
+    KlientID INT,
+    DataZamowienia DATETIME DEFAULT GETDATE(),
+    Status NVARCHAR(20) CHECK (Status IN ('Zlozone', 'Wyslane', 'Dostarczone', 'Anulowane')),
+    FOREIGN KEY (KlientID) REFERENCES Klienci(KlientID)
+);
+
+
+CREATE TABLE SzczegolyZamowienia (
+    SzczegolyZamowieniaID INT PRIMARY KEY AUTO_INCREMENT,
+    ZamowienieID INT,
+    ProduktID INT,
+    Ilosc INT CHECK (Ilosc > 0),
+    Cena DECIMAL(10, 2),
+    FOREIGN KEY (ZamowienieID) REFERENCES Zamowienia(ZamowienieID),
+    FOREIGN KEY (ProduktID) REFERENCES Produkty(ProduktID)
+);
+
+
+
+INSERT INTO Klienci (Imie, Nazwisko, Email, DataUrodzenia) VALUES
+('Jan', 'Kowalski', 'jan.kowalski@example.com', '1985-05-12'),
+('Anna', 'Nowak', 'anna.nowak@example.com', '1990-07-23');
+
+
+
+INSERT INTO Produkty (Nazwa, Cena, IloscNaStanie) VALUES
+('Laptop', 3000.00, 10),
+('Smartphone', 1500.00, 20),
+('Tablet', 1200.00, 15);
+
+
+
+INSERT INTO Zamowienia (KlientID, Status) VALUES
+(1, 'Zlozone'),
+(2, 'Wyslane');
+
+
+INSERT INTO SzczegolyZamowienia (ZamowienieID, ProduktID, Ilosc, Cena) VALUES
+(1, 1, 2, 3000.00),
+(2, 2, 1, 1500.00);
+
+
+
+SELECT p.Nazwa, sz.Cena, sz.Ilosc, z.DataZamowienia
+FROM SzczegolyZamowienia sz
+JOIN Produkty p ON sz.ProduktID = p.ProduktID
+JOIN Zamowienia z ON sz.ZamowienieID = z.ZamowienieID
+ORDER BY p.Nazwa, z.DataZamowienia;
+
+
+
+SELECT p.Nazwa, YEAR(z.DataZamowienia) AS Year, MONTH(z.DataZamowienia) AS Month,
+       SUM(sz.Cena * sz.Ilosc) AS TotalSales
+FROM SzczegolyZamowienia sz
+JOIN Produkty p ON sz.ProduktID = p.ProduktID
+JOIN Zamowienia z ON sz.ZamowienieID = z.ZamowienieID
+GROUP BY p.Nazwa, Year, Month
+ORDER BY Year, Month;
+
+
+
+CREATE TABLE DaneJson (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    Dane NVARCHAR(MAX)
+);
+
+
+
+INSERT INTO DaneJson (Dane) VALUES
+('{"ProductID": 1, "ProductName": "Laptop", "Quantity": 5}'),
+('{"ProductID": 2, "ProductName": "Smartphone", "Quantity": 10}');
+
+
+SELECT ID, JSON_VALUE(Dane, '$.ProductName') AS ProductName,
+             JSON_VALUE(Dane, '$.Quantity') AS Quantity
+FROM DaneJson;
+
+
+CREATE INDEX idx_KlientID ON Zamowienia(KlientID);
+CREATE INDEX idx_ProduktID ON SzczegolyZamowienia(ProduktID);
+CREATE INDEX idx_Status ON Zamowienia(Status);
+
+
+
+SELECT p.Nazwa, SUM(sz.Ilosc * sz.Cena) AS TotalSales
+FROM Produkty p
+LEFT JOIN SzczegolyZamowienia sz ON p.ProduktID = sz.ProduktID
+GROUP BY p.Nazwa;
+
+
+
+SELECT * FROM Zamowienia ORDER BY DataZamowienia DESC LIMIT 100;
+
+
+EXPLAIN SELECT * FROM SzczegolyZamowienia sz
+JOIN Produkty p ON sz.ProduktID = p.ProduktID;

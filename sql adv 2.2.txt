@@ -1,0 +1,57 @@
+Create the Materialized View:
+
+CREATE MATERIALIZED VIEW MonthlySalesSummary AS
+SELECT 
+    p.ProduktID, 
+    p.Nazwa AS ProductName, 
+    YEAR(z.DataZamowienia) AS Year, 
+    MONTH(z.DataZamowienia) AS Month, 
+    SUM(sz.Ilosc * sz.Cena) AS TotalSales
+FROM Produkty p
+JOIN SzczegolyZamowienia sz ON p.ProduktID = sz.ProduktID
+JOIN Zamowienia z ON sz.ZamowienieID = z.ZamowienieID
+GROUP BY p.ProduktID, p.Nazwa, Year, Month;
+
+
+
+CREATE MATERIALIZED VIEW TopCustomers AS
+SELECT 
+    k.KlientID, 
+    k.Imie, 
+    k.Nazwisko, 
+    SUM(sz.Ilosc * sz.Cena) AS TotalSpent
+FROM Klienci k
+JOIN Zamowienia z ON k.KlientID = z.KlientID
+JOIN SzczegolyZamowienia sz ON z.ZamowienieID = sz.ZamowienieID
+GROUP BY k.KlientID, k.Imie, k.Nazwisko
+ORDER BY TotalSpent DESC;
+
+
+
+REFRESH MATERIALIZED VIEW MonthlySalesSummary;
+
+
+EXPLAIN ANALYZE 
+
+SELECT * FROM TopCustomers WHERE TotalSpent > 5000;
+
+
+
+EXPLAIN ANALYZE 
+SELECT k.KlientID, k.Imie, k.Nazwisko, SUM(sz.Ilosc * sz.Cena) AS TotalSpent
+FROM Klienci k
+JOIN Zamowienia z ON k.KlientID = z.KlientID
+JOIN SzczegolyZamowienia sz ON z.ZamowienieID = sz.ZamowienieID
+GROUP BY k.KlientID, k.Imie, k.Nazwisko
+HAVING SUM(sz.Ilosc * sz.Cena) > 5000;
+
+
+CREATE MATERIALIZED VIEW ProductStockSummary AS
+SELECT 
+    p.ProduktID, 
+    p.Nazwa AS ProductName, 
+    p.IloscNaStanie AS CurrentStock
+FROM Produkty p;
+
+
+REFRESH MATERIALIZED VIEW ProductStockSummary;
