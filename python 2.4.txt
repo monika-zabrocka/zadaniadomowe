@@ -1,0 +1,67 @@
+from datetime import datetime
+
+def format_date(date_string):
+   
+    date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+    return date_obj.strftime("%d-%m-%Y")
+
+
+print(format_date("2024-10-19"))  
+
+
+from datetime import timedelta
+
+def add_days(date_string, days):
+  
+    date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+    new_date = date_obj + timedelta(days=days)
+    return new_date.strftime("%Y-%m-%d")
+
+
+print(add_days("2024-10-19", 10))  
+
+
+def days_between_dates(date1, date2):
+ 
+    date_obj1 = datetime.strptime(date1, "%Y-%m-%d")
+    date_obj2 = datetime.strptime(date2, "%Y-%m-%d")
+    difference = date_obj2 - date_obj1
+    return difference.days
+
+
+print(days_between_dates("2024-10-01", "2024-10-19"))  
+
+
+
+
+def weeks_between_dates(date1, date2):
+ 
+    days = days_between_dates(date1, date2)
+    return days // 7  
+
+print(weeks_between_dates("2024-10-01", "2024-10-19"))  
+
+
+def day_of_week(date_string):
+ 
+    date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+    return date_obj.strftime("%A")
+
+
+print(day_of_week("2024-10-19"))  
+
+
+# 1. Format Date
+print(format_date("2024-10-19"))  # '19-10-2024'
+
+# 2. Add Days
+print(add_days("2024-10-19", 10))  # '2024-10-29'
+
+# 3. Days Between Dates
+print(days_between_dates("2024-10-01", "2024-10-19"))  # 18
+
+# 4. Weeks Between Dates
+print(weeks_between_dates("2024-10-01", "2024-10-19"))  # 2
+
+# 5. Day of the Week
+print(day_of_week("2024-10-19"))  # 'Saturday'
