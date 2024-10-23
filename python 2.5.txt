@@ -1,0 +1,38 @@
+def to_lowercase(s):
+ 
+    return s.lower()
+
+print(to_lowercase("Hello World")) 
+
+
+def to_uppercase(s):
+    
+    return s.upper()
+
+
+print(to_uppercase("Hello World"))  
+
+
+import string
+
+def clean_text(s):
+   
+    return s.translate(str.maketrans("", "", string.punctuation))
+
+print(clean_text("Hello, world! This is a test."))  
+
+
+
+def word_count(s):
+    
+    return len(s.split())
+
+print(word_count("Hello world! This is a test."))  
+
+
+def replace_spaces(s):
+
+    return s.replace(" ", "_")
+
+
+print(replace_spaces("Hello world! This is a test.")) 
