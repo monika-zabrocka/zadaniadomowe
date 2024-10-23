@@ -1,0 +1,16 @@
+def process_string(s):
+    
+    s_upper = s.upper()
+    
+   
+    s_underscores = s_upper.replace(" ", "_")
+    
+  
+    s_reversed = s_underscores[::-1]
+    
+    return s_reversed
+
+
+input_string = "Hello world"
+processed_string = process_string(input_string)
+print(processed_string)
