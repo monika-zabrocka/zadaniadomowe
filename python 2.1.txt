@@ -1,0 +1,53 @@
+def add_numbers(a, b):
+    
+    return a + b
+
+def reverse_string(s):
+   
+    return s[::-1]
+
+def is_even(n):
+   
+    return n % 2 == 0
+
+
+
+print(add_numbers(5, 10))  
+print(reverse_string("hello"))  
+print(is_even(4))  
+print(is_even(7))  
+
+
+#task 2
+
+def divide_numbers(a, b):
+
+    print(f"DEBUG: Trying to divide {a} by {b}")  
+    return a / b  
+
+def capitalize_string(s):
+   
+    print(f"DEBUG: Capitalizing string: {s}")  
+    return s[0].upper() + s[1:]  
+
+def find_max(lst):
+  
+   
+    print(f"DEBUG: Finding max in list: {lst}")  
+    return max(lst)  
+
+
+try:
+    print(divide_numbers(10, 0))  
+except ZeroDivisionError:
+    print("Caught division by zero error!")  
+
+try:
+    print(capitalize_string(""))  
+except IndexError:
+    print("Caught index error due to empty string!")
+
+try:
+    print(find_max([]))  
+except ValueError:
+    print("Caught value error due to empty list!")
