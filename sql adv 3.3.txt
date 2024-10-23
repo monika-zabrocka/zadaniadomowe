@@ -1,0 +1,76 @@
+DELIMITER $$
+
+CREATE PROCEDURE AddCustomerAndOrder(
+    IN p_first_name VARCHAR(50),
+    IN p_last_name VARCHAR(50),
+    IN p_email VARCHAR(100),
+    IN p_phone_number VARCHAR(15),
+    IN p_order_date DATE,
+    IN p_product_id INT,
+    IN p_quantity INT
+)
+BEGIN
+    DECLARE p_total_amount DECIMAL(10, 2);
+    DECLARE p_price DECIMAL(10, 2);
+    DECLARE new_customer_id INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Rollback the transaction if an error occurs
+        ROLLBACK;
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'An error occurred. Transaction rolled back.';
+    END;
+    
+  
+    START TRANSACTION;
+    
+    -- Insert customer data into customers table
+    INSERT INTO customers (first_name, last_name, email, phone_number)
+    VALUES (p_first_name, p_last_name, p_email, p_phone_number);
+    
+    -- Retrieve the new customer ID
+    SET new_customer_id = LAST_INSERT_ID();
+    
+    -- Retrieve the price of the product
+    SELECT price INTO p_price FROM products WHERE product_id = p_product_id;
+    
+    -- Calculate the total amount
+    SET p_total_amount = p_price * p_quantity;
+    
+    -- Insert data into orders table
+    INSERT INTO orders (customer_id, order_date, total_amount)
+    VALUES (new_customer_id, p_order_date, p_total_amount);
+    
+    -- Retrieve the new order ID
+    SET @new_order_id = LAST_INSERT_ID();
+    
+    -- Insert data into order_items table
+    INSERT INTO order_items (order_id, product_id, quantity, price)
+    VALUES (@new_order_id, p_product_id, p_quantity, p_price);
+    
+    -- Commit the transaction if everything is successful
+    COMMIT;
+    
+END$$
+
+DELIMITER ;
+
+CALL AddCustomerAndOrder(
+    'John', 
+    'Doe', 
+    'john.doe@example.com', 
+    '123-456-7890', 
+    '2024-10-19', 
+    1,   -- Valid product ID from your products table
+    2    -- Quantity of the product
+);
+
+
+CALL AddCustomerAndOrder(
+    'Jane', 
+    'Smith', 
+    'jane.smith@example.com', 
+    '987-654-3210', 
+    '2024-10-20', 
+    999,  -- Invalid product ID
+    3     -- Quantity
+);
