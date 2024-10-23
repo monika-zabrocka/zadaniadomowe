@@ -1,0 +1,48 @@
+
+SELECT Last_name 
+FROM students s
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM enrollments e
+    WHERE e.Student_ID = s.Student_ID
+    AND e.Enrollment_date >= '2023-01-01'
+)
+AND EXISTS (
+    SELECT 1 
+    FROM enrollments e
+    WHERE e.Student_ID = s.Student_ID
+    AND e.Enrollment_date < '2023-01-01'
+);
+
+SELECT c.Course_Name, 
+       YEAR(e.enrollment_date) AS EnrollmentYear, 
+       MONTH(e.enrollment_date) AS EnrollmentMonth, 
+       COUNT(e.Student_iD) AS TotalStudents
+FROM Courses c
+JOIN Enrollments e ON c.Course_ID = e.Course_ID
+GROUP BY 1,2,3
+ORDER BY EnrollmentYear, EnrollmentMonth;
+
+SELECT s.Last_name
+FROM Students s
+JOIN Enrollments e ON s.Student_ID = e.Student_ID
+GROUP BY s.Last_Name, s.Student_ID
+HAVING COUNT(e.Course_ID) = 1;
+
+SELECT c.Course_name
+FROM Courses c
+JOIN Enrollments e ON c.Course_ID = e.Course_ID
+JOIN Students s ON e.Student_ID = s.Student_ID
+GROUP BY c.CourseName
+HAVING COUNT(DISTINCT 
+             CASE 
+                 WHEN DATEDIFF(YEAR, s.date_of_birth, GETDATE()) < 20 THEN 'under 20'
+                 WHEN DATEDIFF(YEAR, s.date_of_birth, GETDATE()) BETWEEN 20 AND 30 THEN '20-30'
+                 ELSE 'over 30' 
+             END) > 1;
+
+SELECT YEAR(e.enrollment_date) AS EnrollmentYear, 
+       COUNT(DISTINCT e.Course_ID) AS TotalCourses
+FROM Enrollments e
+GROUP BY EnrollmentYear
+ORDER BY EnrollmentYear;
