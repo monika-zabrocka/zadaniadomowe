@@ -1,0 +1,39 @@
+def sort_list(lst):
+    return sorted(lst)
+
+def find_element(lst, target):
+    return target in lst
+
+
+def sort_and_find(lst, target):
+    sorted_list = sort_list(lst)  
+    return find_element(sorted_list, target)  
+
+
+
+def insert_element(lst, element):
+    lst.append(element)  
+    return lst
+
+
+def remove_element(lst, element):
+    if element in lst:
+        lst.remove(element)  
+    return lst
+
+
+numbers = [3, 7, 1, 5, 2]
+
+print("Sorted list:", sort_list(numbers))
+
+
+print("Is 5 in the list?", find_element(numbers, 5))
+print("Is 10 in the list?", find_element(numbers, 10))
+
+
+print("Is 2 in the sorted list?", sort_and_find(numbers, 2))
+
+
+print("After inserting 8:", insert_element(numbers, 8))
+
+print("After removing 5:", remove_element(numbers, 5))
