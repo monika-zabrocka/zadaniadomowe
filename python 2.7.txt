@@ -1,0 +1,54 @@
+from collections import Counter
+
+def most_common_word(s):
+  
+    words = s.split()  
+    word_counts = Counter(words)  
+    most_common = word_counts.most_common(1)  
+    return most_common[0][0] if most_common else None
+
+
+print(most_common_word("apple banana apple orange banana apple")) 
+
+
+def longest_word_length(s):
+   
+    words = s.split()  
+    if not words:
+        return 0
+    return len(max(words, key=len))  
+
+
+print(longest_word_length("apple banana orange"))  
+
+
+def split_words(s):
+   
+    return s.split() 
+
+
+print(split_words("apple banana orange"))  
+
+
+
+def letter_count(s):
+  
+    counts = {}
+    for char in s:
+        counts[char] = counts.get(char, 0) + 1 
+    return counts
+
+
+print(letter_count("apple"))  
+
+
+def remove_word(s, word):
+   
+    words = s.split()  
+    updated_words = [w for w in words if w != word]  
+    return " ".join(updated_words)  
+
+
+print(remove_word("apple banana apple orange", "apple"))  
+
+
