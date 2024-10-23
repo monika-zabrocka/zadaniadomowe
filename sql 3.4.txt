@@ -1,0 +1,91 @@
+DELIMITER $$
+
+CREATE TRIGGER update_total_amount_after_insert
+AFTER INSERT ON order_items
+FOR EACH ROW
+BEGIN
+    -- Calculate the total amount of all order items for the order
+    UPDATE orders
+    SET total_amount = (
+        SELECT SUM(quantity * price)
+        FROM order_items
+        WHERE order_id = NEW.order_id
+    )
+    WHERE order_id = NEW.order_id;
+END$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER check_stock_before_insert
+BEFORE INSERT ON order_items
+FOR EACH ROW
+BEGIN
+    DECLARE available_stock INT;
+
+    -- Get the available stock of the product
+    SELECT stock_quantity INTO available_stock
+    FROM products
+    WHERE product_id = NEW.product_id;
+
+    -- Check if there is enough stock
+    IF available_stock < NEW.quantity THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Insufficient stock for product.';
+    END IF;
+
+    -- If stock is available, proceed to update the stock quantity
+    UPDATE products
+    SET stock_quantity = stock_quantity - NEW.quantity
+    WHERE product_id = NEW.product_id;
+END$$
+
+DELIMITER ;
+
+
+CREATE TABLE audit_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    action_type VARCHAR(10),
+    order_id INT,
+    action_timestamp DATETIME
+);
+
+
+DELIMITER $$
+
+CREATE TRIGGER log_insert_on_orders
+AFTER INSERT ON orders
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (action_type, order_id, action_timestamp)
+    VALUES ('INSERT', NEW.order_id, NOW());
+END$$
+
+DELIMITER ;
+Trigger for UPDATE on orders Table:
+
+DELIMITER $$
+
+CREATE TRIGGER log_update_on_orders
+AFTER UPDATE ON orders
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (action_type, order_id, action_timestamp)
+    VALUES ('UPDATE', NEW.order_id, NOW());
+END$$
+
+DELIMITER ;
+Trigger for DELETE on orders Table:
+
+DELIMITER $$
+
+CREATE TRIGGER log_delete_on_orders
+AFTER DELETE ON orders
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_log (action_type, order_id, action_timestamp)
+    VALUES ('DELETE', OLD.order_id, NOW());
+END$$
+
+DELIMITER ;
